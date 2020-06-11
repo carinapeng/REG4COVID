@@ -1,0 +1,204 @@
+---
+title: "policy"
+author: "Carina Peng"
+date: "6/9/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readxl)
+library(magrittr)
+library(dplyr)
+library(janitor)
+library(tidyr)
+library(ggplot2)
+library(tidyverse)
+```
+
+
+```{r}
+data <- read_excel("/Users/carinapeng/Downloads/reg4covid.xlsx") %>%
+  clean_names()
+
+mutated <- data %>%
+  mutate(emergency = ifelse(is.na(topic_s), 0, 1),
+         broadband = ifelse(is.na(x11), 0, 1),
+         affordability = ifelse(is.na(x12), 0, 1),
+         accessibility = ifelse(is.na(x13), 0, 1),
+         quality_service = ifelse(is.na(x14), 0, 1),
+         traffic = ifelse(is.na(x15), 0, 1),
+         consumer = ifelse(is.na(x16), 0, 1),
+         universal = ifelse(is.na(x17), 0, 1),
+         privacy = ifelse(is.na(x18), 0, 1),
+         digital_id = ifelse(is.na(x19), 0, 1),
+         reg_innov = ifelse(is.na(x20), 0, 1),
+         reg_harmon = ifelse(is.na(x21), 0, 1),
+         spectrum = ifelse(is.na(x22), 0, 1),
+         financial = ifelse(is.na(x23), 0, 1),
+         other = ifelse(is.na(x24), 0, 1),
+         broadcasting = ifelse(is.na(x25), 0, 1))
+
+new_data <- mutated %>%
+  select(country_economy, 
+         level_of_development, 
+         region, 
+         emergency,
+         broadband,
+         affordability,
+         accessibility,
+         quality_service,
+         traffic,
+         consumer,
+         universal,
+         privacy,
+         digital_id,
+         reg_innov,
+         reg_harmon,
+         spectrum,
+         financial,
+         other,
+         broadcasting)
+
+
+emergency_count <- new_data %>%
+  filter(emergency == 1) %>%
+  count(region) %>%
+  rename(emergency_c = n)
+
+broadband_count <- new_data %>%
+  filter(broadband == 1) %>%
+  count(region) %>%
+  rename(broadband_c = n)
+
+affordability_count <- new_data %>%
+  filter(affordability == 1) %>%
+  count(region) %>%
+  rename(affordability_c = n)
+
+accessibility_count <- new_data %>%
+  filter(accessibility == 1) %>%
+  count(region) %>%
+  rename(accessibility_c = n)
+
+quality_service_count <- new_data %>%
+  filter(quality_service == 1) %>%
+  count(region) %>%
+  rename(quality_service_c = n)
+
+traffic_count <- new_data %>%
+  filter(traffic == 1) %>%
+  count(region) %>%
+  rename(traffic_c = n)
+
+consumer_count <- new_data %>%
+  filter(consumer == 1) %>%
+  count(region) %>%
+  rename(consumer_c = n)
+
+universal_count <- new_data %>%
+  filter(universal == 1) %>%
+  count(region) %>%
+  rename(universal_c = n)
+
+privacy_count <- new_data %>%
+  filter(privacy == 1) %>%
+  count(region) %>%
+  rename(privacy_c = n)
+
+digital_id_count <- new_data %>%
+  filter(digital_id == 1) %>%
+  count(region) %>%
+  rename(digital_id_c = n)
+
+reg_innov_count <- new_data %>%
+  filter(reg_innov == 1) %>%
+  count(region) %>%
+  rename(reg_innov_c = n)
+
+reg_harmon_count <- new_data %>%
+  filter(reg_harmon == 1) %>%
+  count(region) %>%
+  rename(reg_harmon_c = n)
+
+spectrum_count <- new_data %>%
+  filter(spectrum == 1) %>%
+  count(region) %>%
+  rename(spectrum_c = n)
+
+financial_count <- new_data %>%
+  filter(financial == 1) %>%
+  count(region) %>%
+  rename(financial_c = n)
+
+other_count <- new_data %>%
+  filter(other == 1) %>%
+  count(region) %>%
+  rename(other_c = n)
+
+broadcasting_count <- new_data %>%
+  filter(broadcasting == 1) %>%
+  count(region) %>%
+  rename(broadcasting_c = n)
+  
+
+```
+
+
+```{r_join}
+
+region_tidy <- emergency_count %>%
+  inner_join(broadband_count) %>%
+  inner_join(affordability_count) %>%
+  inner_join(accessibility_count) %>%
+  inner_join(quality_service_count) %>%
+  inner_join(traffic_count) %>%
+  inner_join(consumer_count) %>%
+  inner_join(universal_count) %>%
+  inner_join(privacy_count) %>%
+  inner_join(digital_id_count) %>%
+  inner_join(reg_innov_count) %>%
+  inner_join(reg_harmon_count) %>%
+  inner_join(spectrum_count) %>%
+  inner_join(financial_count) %>%
+  inner_join(other_count) %>%
+  inner_join(broadcasting_count)
+
+```
+
+  group_by(region, emergency) %>%
+  mutate(emergency_count = n())
+
+```{r}
+region <- new_data %>%
+  select(region, 
+         emergency,
+         broadband,
+         affordability,
+         accessibility,
+         quality_service,
+         traffic,
+         consumer,
+         universal,
+         privacy,
+         digital_id,
+         reg_innov,
+         reg_harmon,
+         spectrum,
+         financial,
+         other,
+         broadcasting)%>%
+  pivot_longer(names_to = "type",
+               values_to = "number",
+               cols = -region)
+
+pie_americas <- region %>%
+  filter(region == "The Americas") %>%
+  ggplot(region, mapping = aes(x = "", y = number, fill = type)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start = 0)
+
+pie_americas
+
+```
+
