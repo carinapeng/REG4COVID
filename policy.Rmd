@@ -13,6 +13,7 @@ library(dplyr)
 library(janitor)
 library(tidyr)
 library(ggplot2)
+library(ggthemes)
 library(tidyverse)
 ```
 
@@ -145,60 +146,113 @@ broadcasting_count <- new_data %>%
 ```
 
 
-```{r_join}
+```{r}
 
 region_tidy <- emergency_count %>%
-  inner_join(broadband_count) %>%
-  inner_join(affordability_count) %>%
-  inner_join(accessibility_count) %>%
-  inner_join(quality_service_count) %>%
-  inner_join(traffic_count) %>%
-  inner_join(consumer_count) %>%
-  inner_join(universal_count) %>%
-  inner_join(privacy_count) %>%
-  inner_join(digital_id_count) %>%
-  inner_join(reg_innov_count) %>%
-  inner_join(reg_harmon_count) %>%
-  inner_join(spectrum_count) %>%
-  inner_join(financial_count) %>%
-  inner_join(other_count) %>%
-  inner_join(broadcasting_count)
+  left_join(broadband_count) %>%
+  left_join(affordability_count) %>%
+  left_join(accessibility_count) %>%
+  left_join(quality_service_count) %>%
+  left_join(traffic_count) %>%
+  left_join(consumer_count) %>%
+  left_join(universal_count) %>%
+  left_join(privacy_count) %>%
+  left_join(digital_id_count) %>%
+  left_join(reg_innov_count) %>%
+  left_join(reg_harmon_count) %>%
+  left_join(spectrum_count) %>%
+  left_join(financial_count) %>%
+  left_join(other_count) %>%
+  left_join(broadcasting_count)
+
+region_tidy <- region_tidy %>%
+  mutate_all(~replace(., is.na(.), 0))
 
 ```
+
 
   group_by(region, emergency) %>%
   mutate(emergency_count = n())
 
 ```{r}
-region <- new_data %>%
-  select(region, 
-         emergency,
-         broadband,
-         affordability,
-         accessibility,
-         quality_service,
-         traffic,
-         consumer,
-         universal,
-         privacy,
-         digital_id,
-         reg_innov,
-         reg_harmon,
-         spectrum,
-         financial,
-         other,
-         broadcasting)%>%
+
+pie_region_data <- region_tidy %>%
   pivot_longer(names_to = "type",
                values_to = "number",
                cols = -region)
 
-pie_americas <- region %>%
-  filter(region == "The Americas") %>%
-  ggplot(region, mapping = aes(x = "", y = number, fill = type)) +
+africa <- pie_region_data %>%
+  filter(region == "Africa") %>%
+  ggplot(aes(x="", y=number, fill=type)) +
   geom_bar(width = 1, stat = "identity") +
-  coord_polar("y", start = 0)
+  coord_polar("y", start = 0) +
+  theme_void() +
+  labs(title = "Frequency of all topics",
+       subtitle = "Africa",
+       caption = "Data from the ITU")
 
-pie_americas
+arab_states <- pie_region_data %>%
+  filter(region == "Arab States") %>%
+  ggplot(aes(x="", y=number, fill=type)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start = 0) +
+  theme_void() +
+  labs(title = "Frequency of all topics",
+       subtitle = "Arab States",
+       caption = "Data from the ITU")
+
+asia <- pie_region_data %>%
+  filter(region == "Asia & Pacific") %>%
+  ggplot(aes(x="", y=number, fill=type)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start = 0) +
+  theme_void() +
+  labs(title = "Frequency of all topics",
+       subtitle = "Asia & Pacific",
+       caption = "Data from the ITU")
+
+cis <- pie_region_data %>%
+  filter(region == "CIS countries") %>%
+  ggplot(aes(x="", y=number, fill=type)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start = 0) +
+  theme_void() +
+  labs(title = "Frequency of all topics",
+       subtitle = "CIS countries",
+       caption = "Data from the ITU")
+
+europe <- pie_region_data %>%
+  filter(region == "Europe") %>%
+  ggplot(aes(x="", y=number, fill=type)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start = 0) +
+  theme_void() +
+  labs(title = "Frequency of all topics",
+       subtitle = "Europe",
+       caption = "Data from the ITU")
+
+americas <- pie_region_data %>%
+  filter(region == "The Americas") %>%
+  ggplot(aes(x="", y=number, fill=type)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start = 0) +
+  theme_void() +
+  labs(title = "Frequency of all topics",
+       subtitle = "The Americas",
+       caption = "Data from the ITU")
+
+africa
+arab_states
+asia
+cis
+europe
+americas
+
+```
+
+```{r}
+
+# scale_fill_brewer("Blues")
 
 ```
 
