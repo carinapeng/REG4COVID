@@ -250,7 +250,20 @@ americas
 
 ```
 
+pie_region_data %>%
+  ggplot(aes(fill=region, y=number, x=type)) +
+  geom_bar(position="dodge", stat="identity")
+
+pie_region_data <- region_tidy %>%
+  select()
+  pivot_longer(names_to = "type",
+               values_to = "number",
+               cols = -region)
+               
 ```{r}
+
+
+
 
 # scale_fill_brewer("Blues")
 
