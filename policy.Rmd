@@ -202,7 +202,6 @@ bar_region <- bar_topfive %>%
   labs(
     title = "COVID-19 Initiatives and Policy Measures",
     subtitle = "Grouped by Regions",
-    caption = "Data from ITU REG4COVID team",
     x = "Type of Policy Measures",
     y = "Number",
     fill = "Region"
