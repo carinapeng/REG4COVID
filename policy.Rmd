@@ -1,7 +1,7 @@
 ---
-title: "policy"
+title: "ITU REG4COVID Data Analysis"
 author: "Carina Peng"
-date: "6/9/2020"
+date: "6/12/2020"
 output: html_document
 ---
 
@@ -23,8 +23,7 @@ nb.cols <- 17
 mycolors <- colorRampPalette(brewer.pal(17, "Blues"))(nb.cols)
 ```
 
-
-```{r, echo = FALSE}
+```{r, include = FALSE}
 data <- read_excel("/Users/carinapeng/Downloads/reg4covid.xlsx") %>%
   clean_names()
 
@@ -151,7 +150,7 @@ broadcasting_count <- new_data %>%
 ```
 
 
-```{r, echo = FALSE}
+```{r, include = FALSE}
 
 region_tidy <- emergency_count %>%
   left_join(broadband_count) %>%
@@ -174,6 +173,84 @@ region_tidy <- region_tidy %>%
   mutate_all(~replace(., is.na(.), 0))
 
 ```
+
+```{r, echo = FALSE}
+  
+bar_topfive <- region_tidy %>%
+  select(region,
+         emergency_c,
+         affordability_c,
+         accessibility_c,
+         broadband_c,
+         other_c) %>%
+  pivot_longer(names_to = "type",
+               values_to = "number",
+               cols = -region) 
+
+# Set 0 values to NA, and then omit these values
+bar_topfive[bar_topfive == 0] <- NA
+
+bar_topfive <- bar_topfive %>%
+  na.omit(region)
+  
+bar_region <- bar_topfive %>%
+  ggplot(aes(fill=region, y=number, x=type)) +
+  geom_bar(position="dodge", stat="identity") +
+  geom_text(aes(label=number), position = position_dodge(width = 1), vjust=-0.3, size=3) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
+  labs(
+    title = "COVID-19 Initiatives and Policy Measures",
+    subtitle = "Grouped by Regions",
+    caption = "Data from ITU REG4COVID team",
+    x = "Type of Policy Measures",
+    y = "Number",
+    fill = "Region"
+  ) +
+  scale_fill_brewer(palette="Blues") +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_x_discrete(breaks=c("accessibility_c","affordability_c","broadband_c", "emergency_c", "other_c"),
+        labels=c("Accessibility", "Affordability", "Broadband", "Emergency", "Other"))
+
+bar_region
+
+```
+
+```{r, echo = FALSE}
+dev <- read_excel("/Users/carinapeng/REG4COVID/dev.xlsx") %>%
+  clean_names() %>%
+  select(level_of_development,
+         emergency_telecommunications,
+         affordability,
+         accessibility,
+         broadband_availability,
+         other) %>%
+  pivot_longer(names_to = "type",
+               values_to = "number",
+               cols = -level_of_development)
+
+bar_dev <- dev %>%
+  ggplot(aes(fill=level_of_development, y=number, x=type)) +
+  geom_bar(position="dodge", stat="identity") + 
+  geom_text(aes(label=number), position = position_dodge(width = 1), vjust=-0.3, size=3) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
+  labs(
+    title = "COVID-19 Initiatives and Policy Measures",
+    subtitle = "Grouped by Countries' Level of Development",
+    caption = "Data from ITU REG4COVID team",
+    x = "Type of Policy Measures",
+    y = "Number",
+    fill = "Level of Development"
+  ) +
+  scale_fill_brewer(palette="Blues") +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_x_discrete(breaks=c("accessibility","affordability","broadband_availability", "emergency_telecommunications", "other"),
+        labels=c("Accessibility", "Affordability", "Broadband", "Emergency", "Other"))
+
+bar_dev
+```
+
 
 
 ```{r, echo = FALSE}
@@ -224,9 +301,10 @@ africa_pie <- pie_region_data %>%
   coord_polar("y", start = 0) +
   scale_fill_manual(values = rev(mycolors)) +
   theme_void() +
-  labs(title = "Frequency of all topics",
-       subtitle = "Africa",
-       caption = "Data from the ITU")
+  labs(title = "COVID-19 Initiatives and Policy Measures in Africa",
+       subtitle = "Grouped by Topics",
+       caption = "Data collection from the ITU REG4COVID team",
+       fill = "Type of Measures")
 
 arab_states_pie <- pie_region_data %>%
   filter(region == "Arab States") %>%
@@ -235,9 +313,10 @@ arab_states_pie <- pie_region_data %>%
   coord_polar("y", start = 0) +
   scale_fill_manual(values = rev(mycolors)) +
   theme_void() +
-  labs(title = "Frequency of all topics",
-       subtitle = "Arab States",
-       caption = "Data from the ITU")
+  labs(title = "COVID-19 Initiatives and Policy Measures in Arab States",
+       subtitle = "Grouped by Topics",
+       caption = "Data collection from the ITU REG4COVID team",
+       fill = "Type of Measures")
 
 asia_pie <- pie_region_data %>%
   filter(region == "Asia & Pacific") %>%
@@ -246,9 +325,10 @@ asia_pie <- pie_region_data %>%
   coord_polar("y", start = 0) +
   scale_fill_manual(values = rev(mycolors)) +
   theme_void() +
-  labs(title = "Frequency of all topics",
-       subtitle = "Asia & Pacific",
-       caption = "Data from the ITU")
+  labs(title = "COVID-19 Initiatives and Policy Measures in Asia and the Pacific",
+       subtitle = "Grouped by Topics",
+       caption = "Data collection from the ITU REG4COVID team",
+       fill = "Type of Measures")
 
 cis_pie <- pie_region_data %>%
   filter(region == "CIS countries") %>%
@@ -257,9 +337,10 @@ cis_pie <- pie_region_data %>%
   coord_polar("y", start = 0) +
   scale_fill_manual(values = rev(mycolors)) +
   theme_void() +
-  labs(title = "Frequency of all topics",
-       subtitle = "CIS countries",
-       caption = "Data from the ITU")
+  labs(title = "COVID-19 Initiatives and Policy Measures in CIS Countries",
+       subtitle = "Grouped by Topics",
+       caption = "Data collection from the ITU REG4COVID team",
+       fill = "Type of Measures")
 
 europe_pie <- pie_region_data %>%
   filter(region == "Europe") %>%
@@ -268,9 +349,10 @@ europe_pie <- pie_region_data %>%
   coord_polar("y", start = 0) +
   scale_fill_manual(values = rev(mycolors)) +
   theme_void() +
-  labs(title = "Frequency of all topics",
-       subtitle = "Europe",
-       caption = "Data from the ITU")
+  labs(title = "COVID-19 Initiatives and Policy Measures in Europe",
+       subtitle = "Grouped by Topics",
+       caption = "Data collection from the ITU REG4COVID team",
+       fill = "Type of Measures")
 
 # americas <- americas %>%
   # mutate(pct = paste(round((number / sum(number))*100, digits = 2), "%", sep = ""))
@@ -283,11 +365,10 @@ americas_pie <- pie_region_data %>%
   coord_polar("y", start = 0) +
   scale_fill_manual(values = rev(mycolors)) +
   theme_void() +
-  labs(title = "Frequency of all topics",
-       subtitle = "The Americas",
-       caption = "Data from the ITU",
-       fill = "Type of Policies")
-
+  labs(title = "COVID-19 Initiatives and Policy Measures in The Americas",
+       subtitle = "Grouped by Topics",
+       caption = "Data collection from the ITU REG4COVID team",
+       fill = "Type of Measures")
 africa_pie
 arab_states_pie
 asia_pie
@@ -296,105 +377,9 @@ europe_pie
 americas_pie
 
 ```
-
-pie_region_data %>%
-  ggplot(aes(fill=region, y=number, x=type)) +
-  geom_bar(position="dodge", stat="identity")
-
-pie_region_data <- region_tidy %>%
-  select()
-  pivot_longer(names_to = "type",
-               values_to = "number",
-               cols = -region)
                
-```{r, echo = FALSE}
-  
-bar_topfive <- region_tidy %>%
-  select(region,
-         emergency_c,
-         affordability_c,
-         accessibility_c,
-         broadband_c,
-         other_c) %>%
-  pivot_longer(names_to = "type",
-               values_to = "number",
-               cols = -region) 
-
-# Set 0 values to NA, and then omit these values
-bar_topfive[bar_topfive == 0] <- NA
-
-bar_topfive <- bar_topfive %>%
-  na.omit(region)
-  
-bar_topfive %>%
-  ggplot(aes(fill=region, y=number, x=type)) +
-  geom_bar(position="dodge", stat="identity") +
-  geom_text(aes(label=number), position = position_dodge(width = 1), vjust=-0.3, size=3) +
-  theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
-  labs(
-    title = "Frequency of policy response",
-    subtitle = "Grouped by countries' level of development",
-    caption = "Data from ITU",
-    x = "Type of Policy Response",
-    y = "Number of Policies",
-    fill = "Level of Development"
-  ) +
-  scale_fill_brewer(palette="Blues") +
-  theme_classic() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  scale_x_discrete(breaks=c("accessibility_c","affordability_c","broadband_c", "emergency_c", "other_c"),
-        labels=c("Accessibility", "Affordability", "Broadband", "Emergency", "Other"))
-
-```
-
-# trying waffle
-
-```{r}
-
-vals <- c(239, 52, 9)
-val_names <- sprintf("%s (%s)", c("Negative", "Positive", "Neutral"), scales::percent(round(vals/sum(vals), 2)))
-names(vals) <- val_names
-
-waffle::waffle(vals) +
-  ggthemes::scale_fill_tableau(name=NULL)
-
-```
-
-```{r}
-
-dev <- read_excel("/Users/carinapeng/REG4COVID/dev.xlsx") %>%
-  clean_names() %>%
-  select(x1,
-         emergency_telecommunications,
-         affordability,
-         accessibility,
-         broadband_availability,
-         other) %>%
-  pivot_longer(names_to = "type",
-               values_to = "number",
-               cols = -x1)
-
-dev %>%
-  ggplot(aes(fill=x1, y=number, x=type)) +
-  geom_bar(position="dodge", stat="identity") + 
-  geom_text(aes(label=number), position = position_dodge(width = 1), vjust=-0.3, size=3) +
-  theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
-  labs(
-    title = "Frequency of policy response",
-    subtitle = "Grouped by countries' level of development",
-    caption = "Data from ITU",
-    x = "Type of Policy Response",
-    y = "Number of Policies",
-    fill = "Level of Development"
-  ) +
-  scale_fill_brewer(palette="Blues") +
-  theme_classic() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  scale_x_discrete(breaks=c("accessibility","affordability","broadband_availability", "emergency_telecommunications", "other"),
-        labels=c("Accessibility", "Affordability", "Broadband", "Emergency", "Other"))
 
 
 
-```
 
 
