@@ -15,10 +15,16 @@ library(tidyr)
 library(ggplot2)
 library(ggthemes)
 library(tidyverse)
+library(waffle)
+library(ggrepel)
+library(RColorBrewer)
+
+nb.cols <- 17
+mycolors <- colorRampPalette(brewer.pal(17, "Blues"))(nb.cols)
 ```
 
 
-```{r}
+```{r, echo = FALSE}
 data <- read_excel("/Users/carinapeng/Downloads/reg4covid.xlsx") %>%
   clean_names()
 
@@ -142,11 +148,10 @@ broadcasting_count <- new_data %>%
   count(region) %>%
   rename(broadcasting_c = n)
   
-
 ```
 
 
-```{r}
+```{r, echo = FALSE}
 
 region_tidy <- emergency_count %>%
   left_join(broadband_count) %>%
@@ -171,82 +176,124 @@ region_tidy <- region_tidy %>%
 ```
 
 
-  group_by(region, emergency) %>%
-  mutate(emergency_count = n())
-
-```{r}
+```{r, echo = FALSE}
 
 pie_region_data <- region_tidy %>%
   pivot_longer(names_to = "type",
                values_to = "number",
                cols = -region)
 
-africa <- pie_region_data %>%
+pie_region_data$type <- factor(pie_region_data$type, 
+                        levels=c("emergency_c",
+                                 "broadband_c",
+                                 "affordability_c",
+                                 "accessibility_c",
+                                 "quality_service_c",
+                                 "traffic_c",
+                                 "consumer_c",
+                                 "universal_c",
+                                 "privacy_c",
+                                 "digital_id_c",
+                                 "reg_innov_c",
+                                 "reg_harmon_c",
+                                 "spectrum_c",
+                                 "financial_c",
+                                 "other_c",
+                                 "broadcasting_c"), 
+                        labels=c("Emergency",
+                                 "Broadband",
+                                 "Affordability",
+                                 "Accessibility",
+                                 "Quality Service",
+                                 "Traffic",
+                                 "Consumer",
+                                 "Universal",
+                                 "Privacy",
+                                 "Digital ID",
+                                 "Regulatory Innovation",
+                                 "Regulatory Harmonization",
+                                 "Spectrum",
+                                 "Financial",
+                                 "Other",
+                                 "Broadcasting"))
+
+africa_pie <- pie_region_data %>%
   filter(region == "Africa") %>%
   ggplot(aes(x="", y=number, fill=type)) +
   geom_bar(width = 1, stat = "identity") +
   coord_polar("y", start = 0) +
+  scale_fill_manual(values = rev(mycolors)) +
   theme_void() +
   labs(title = "Frequency of all topics",
        subtitle = "Africa",
        caption = "Data from the ITU")
 
-arab_states <- pie_region_data %>%
+arab_states_pie <- pie_region_data %>%
   filter(region == "Arab States") %>%
   ggplot(aes(x="", y=number, fill=type)) +
   geom_bar(width = 1, stat = "identity") +
   coord_polar("y", start = 0) +
+  scale_fill_manual(values = rev(mycolors)) +
   theme_void() +
   labs(title = "Frequency of all topics",
        subtitle = "Arab States",
        caption = "Data from the ITU")
 
-asia <- pie_region_data %>%
+asia_pie <- pie_region_data %>%
   filter(region == "Asia & Pacific") %>%
   ggplot(aes(x="", y=number, fill=type)) +
   geom_bar(width = 1, stat = "identity") +
   coord_polar("y", start = 0) +
+  scale_fill_manual(values = rev(mycolors)) +
   theme_void() +
   labs(title = "Frequency of all topics",
        subtitle = "Asia & Pacific",
        caption = "Data from the ITU")
 
-cis <- pie_region_data %>%
+cis_pie <- pie_region_data %>%
   filter(region == "CIS countries") %>%
   ggplot(aes(x="", y=number, fill=type)) +
   geom_bar(width = 1, stat = "identity") +
   coord_polar("y", start = 0) +
+  scale_fill_manual(values = rev(mycolors)) +
   theme_void() +
   labs(title = "Frequency of all topics",
        subtitle = "CIS countries",
        caption = "Data from the ITU")
 
-europe <- pie_region_data %>%
+europe_pie <- pie_region_data %>%
   filter(region == "Europe") %>%
   ggplot(aes(x="", y=number, fill=type)) +
   geom_bar(width = 1, stat = "identity") +
   coord_polar("y", start = 0) +
+  scale_fill_manual(values = rev(mycolors)) +
   theme_void() +
   labs(title = "Frequency of all topics",
        subtitle = "Europe",
        caption = "Data from the ITU")
 
-americas <- pie_region_data %>%
+# americas <- americas %>%
+  # mutate(pct = paste(round((number / sum(number))*100, digits = 2), "%", sep = ""))
+
+
+americas_pie <- pie_region_data %>%
   filter(region == "The Americas") %>%
   ggplot(aes(x="", y=number, fill=type)) +
   geom_bar(width = 1, stat = "identity") +
   coord_polar("y", start = 0) +
+  scale_fill_manual(values = rev(mycolors)) +
   theme_void() +
   labs(title = "Frequency of all topics",
        subtitle = "The Americas",
-       caption = "Data from the ITU")
+       caption = "Data from the ITU",
+       fill = "Type of Policies")
 
-africa
-arab_states
-asia
-cis
-europe
-americas
+africa_pie
+arab_states_pie
+asia_pie
+cis_pie
+europe_pie
+americas_pie
 
 ```
 
@@ -260,12 +307,94 @@ pie_region_data <- region_tidy %>%
                values_to = "number",
                cols = -region)
                
-```{r}
+```{r, echo = FALSE}
+  
+bar_topfive <- region_tidy %>%
+  select(region,
+         emergency_c,
+         affordability_c,
+         accessibility_c,
+         broadband_c,
+         other_c) %>%
+  pivot_longer(names_to = "type",
+               values_to = "number",
+               cols = -region) 
 
+# Set 0 values to NA, and then omit these values
+bar_topfive[bar_topfive == 0] <- NA
 
-
-
-# scale_fill_brewer("Blues")
+bar_topfive <- bar_topfive %>%
+  na.omit(region)
+  
+bar_topfive %>%
+  ggplot(aes(fill=region, y=number, x=type)) +
+  geom_bar(position="dodge", stat="identity") +
+  geom_text(aes(label=number), position = position_dodge(width = 1), vjust=-0.3, size=3) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
+  labs(
+    title = "Frequency of policy response",
+    subtitle = "Grouped by countries' level of development",
+    caption = "Data from ITU",
+    x = "Type of Policy Response",
+    y = "Number of Policies",
+    fill = "Level of Development"
+  ) +
+  scale_fill_brewer(palette="Blues") +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_x_discrete(breaks=c("accessibility_c","affordability_c","broadband_c", "emergency_c", "other_c"),
+        labels=c("Accessibility", "Affordability", "Broadband", "Emergency", "Other"))
 
 ```
+
+# trying waffle
+
+```{r}
+
+vals <- c(239, 52, 9)
+val_names <- sprintf("%s (%s)", c("Negative", "Positive", "Neutral"), scales::percent(round(vals/sum(vals), 2)))
+names(vals) <- val_names
+
+waffle::waffle(vals) +
+  ggthemes::scale_fill_tableau(name=NULL)
+
+```
+
+```{r}
+
+dev <- read_excel("/Users/carinapeng/REG4COVID/dev.xlsx") %>%
+  clean_names() %>%
+  select(x1,
+         emergency_telecommunications,
+         affordability,
+         accessibility,
+         broadband_availability,
+         other) %>%
+  pivot_longer(names_to = "type",
+               values_to = "number",
+               cols = -x1)
+
+dev %>%
+  ggplot(aes(fill=x1, y=number, x=type)) +
+  geom_bar(position="dodge", stat="identity") + 
+  geom_text(aes(label=number), position = position_dodge(width = 1), vjust=-0.3, size=3) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
+  labs(
+    title = "Frequency of policy response",
+    subtitle = "Grouped by countries' level of development",
+    caption = "Data from ITU",
+    x = "Type of Policy Response",
+    y = "Number of Policies",
+    fill = "Level of Development"
+  ) +
+  scale_fill_brewer(palette="Blues") +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_x_discrete(breaks=c("accessibility","affordability","broadband_availability", "emergency_telecommunications", "other"),
+        labels=c("Accessibility", "Affordability", "Broadband", "Emergency", "Other"))
+
+
+
+```
+
 
