@@ -1,0 +1,10 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/626893/6a7f87a5fa5c4719b51d0d6af3127cd5
+bundleId: https://api.rpubs.com/api/v1/document/626893/6a7f87a5fa5c4719b51d0d6af3127cd5
+url: http://rpubs.com/carinapeng/626893
+when: 1591974257.03836

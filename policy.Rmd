@@ -20,11 +20,12 @@ library(ggrepel)
 library(RColorBrewer)
 
 nb.cols <- 17
-mycolors <- colorRampPalette(brewer.pal(17, "Blues"))(nb.cols)
+mycolorsblue <- colorRampPalette(brewer.pal(17, "RdYlBu"))(nb.cols)
+mycolors <- colorRampPalette(brewer.pal(17, "Paired"))(nb.cols)
 ```
 
 ```{r, include = FALSE}
-data <- read_excel("/Users/carinapeng/Downloads/reg4covid.xlsx") %>%
+data <- read_excel("/Users/carinapeng/REG4COVID/reg4covid.xlsx") %>%
   clean_names()
 
 mutated <- data %>%
@@ -206,7 +207,7 @@ bar_region <- bar_topfive %>%
     y = "Number",
     fill = "Region"
   ) +
-  scale_fill_brewer(palette="Blues") +
+  scale_fill_brewer(palette="RdYlBu") +
   theme_classic() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_x_discrete(breaks=c("accessibility_c","affordability_c","broadband_c", "emergency_c", "other_c"),
@@ -237,12 +238,11 @@ bar_dev <- dev %>%
   labs(
     title = "COVID-19 Initiatives and Policy Measures",
     subtitle = "Grouped by Countries' Level of Development",
-    caption = "Data from ITU REG4COVID team",
     x = "Type of Policy Measures",
     y = "Number",
     fill = "Level of Development"
   ) +
-  scale_fill_brewer(palette="Blues") +
+  scale_fill_brewer(palette="Paired") +
   theme_classic() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_x_discrete(breaks=c("accessibility","affordability","broadband_availability", "emergency_telecommunications", "other"),
@@ -299,11 +299,10 @@ africa_pie <- pie_region_data %>%
   ggplot(aes(x="", y=number, fill=type)) +
   geom_bar(width = 1, stat = "identity") +
   coord_polar("y", start = 0) +
-  scale_fill_manual(values = rev(mycolors)) +
+  scale_fill_manual(values = rev(mycolorsblue)) +
   theme_void() +
   labs(title = "COVID-19 Initiatives and Policy Measures in Africa",
        subtitle = "Grouped by Topics",
-       caption = "Data collection from the ITU REG4COVID team",
        fill = "Type of Measures")
 
 arab_states_pie <- pie_region_data %>%
@@ -311,11 +310,10 @@ arab_states_pie <- pie_region_data %>%
   ggplot(aes(x="", y=number, fill=type)) +
   geom_bar(width = 1, stat = "identity") +
   coord_polar("y", start = 0) +
-  scale_fill_manual(values = rev(mycolors)) +
+  scale_fill_manual(values = rev(mycolorsblue)) +
   theme_void() +
   labs(title = "COVID-19 Initiatives and Policy Measures in Arab States",
        subtitle = "Grouped by Topics",
-       caption = "Data collection from the ITU REG4COVID team",
        fill = "Type of Measures")
 
 asia_pie <- pie_region_data %>%
@@ -323,11 +321,10 @@ asia_pie <- pie_region_data %>%
   ggplot(aes(x="", y=number, fill=type)) +
   geom_bar(width = 1, stat = "identity") +
   coord_polar("y", start = 0) +
-  scale_fill_manual(values = rev(mycolors)) +
+  scale_fill_manual(values = rev(mycolorsblue)) +
   theme_void() +
   labs(title = "COVID-19 Initiatives and Policy Measures in Asia and the Pacific",
        subtitle = "Grouped by Topics",
-       caption = "Data collection from the ITU REG4COVID team",
        fill = "Type of Measures")
 
 cis_pie <- pie_region_data %>%
@@ -335,11 +332,10 @@ cis_pie <- pie_region_data %>%
   ggplot(aes(x="", y=number, fill=type)) +
   geom_bar(width = 1, stat = "identity") +
   coord_polar("y", start = 0) +
-  scale_fill_manual(values = rev(mycolors)) +
+  scale_fill_manual(values = rev(mycolorsblue)) +
   theme_void() +
   labs(title = "COVID-19 Initiatives and Policy Measures in CIS Countries",
        subtitle = "Grouped by Topics",
-       caption = "Data collection from the ITU REG4COVID team",
        fill = "Type of Measures")
 
 europe_pie <- pie_region_data %>%
@@ -347,11 +343,10 @@ europe_pie <- pie_region_data %>%
   ggplot(aes(x="", y=number, fill=type)) +
   geom_bar(width = 1, stat = "identity") +
   coord_polar("y", start = 0) +
-  scale_fill_manual(values = rev(mycolors)) +
+  scale_fill_manual(values = rev(mycolorsblue)) +
   theme_void() +
   labs(title = "COVID-19 Initiatives and Policy Measures in Europe",
        subtitle = "Grouped by Topics",
-       caption = "Data collection from the ITU REG4COVID team",
        fill = "Type of Measures")
 
 # americas <- americas %>%
@@ -363,11 +358,10 @@ americas_pie <- pie_region_data %>%
   ggplot(aes(x="", y=number, fill=type)) +
   geom_bar(width = 1, stat = "identity") +
   coord_polar("y", start = 0) +
-  scale_fill_manual(values = rev(mycolors)) +
+  scale_fill_manual(values = rev(mycolorsblue)) +
   theme_void() +
   labs(title = "COVID-19 Initiatives and Policy Measures in The Americas",
        subtitle = "Grouped by Topics",
-       caption = "Data collection from the ITU REG4COVID team",
        fill = "Type of Measures")
 africa_pie
 arab_states_pie
